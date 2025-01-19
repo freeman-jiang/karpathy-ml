@@ -99,7 +99,26 @@ class Head(nn.Module):
         out = wei @ v # (B, T, T) @ (B, T, hs) -> (B, T, hs)
         return out
 
+class MultiHeadAttention(nn.Module):
+    """ multiple heads of self-attention in parallel 
+    
+    Creates multiple independent attention heads (like having multiple parallel "attention viewers")
+    Each head can focus on different aspects of the input sequence
+    For example: one head might focus on nearby words, another on related topics, another on syntax patterns
+    
+    Each head processes the input x independently and produces its own output
+    If you have 4 heads and each head outputs size 8, you get 4 separate (batch_size, seq_len, 8) tensors
+    torch.cat(..., dim=-1) stacks these outputs side by side along the last dimension
+    Result: (batch_size, seq_len, 32) where 32 = 4 heads x 8 dimensions
+    """
 
+    def __init__(self, num_heads, head_size):
+        super().__init__()
+        self.heads = nn.ModuleList([Head(head_size) for _ in range(num_heads)])
+
+    def forward(self, x):
+        # concatenate the output of each head over the channel dimension
+        return torch.cat([h(x) for h in self.heads], dim=-1)
 
 # super simple bigram model
 class BigramLanguageModel(nn.Module):
@@ -109,7 +128,9 @@ class BigramLanguageModel(nn.Module):
         # each token directly reads off the logits for the next token from a lookup table
         self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
         self.position_embedding_table = nn.Embedding(block_size, n_embd)
-        self.sa_head = Head(n_embd)
+        # Previously we had one head of self-attention of size n_embd (32)
+        # Now we have 4 heads of self-attention of size n_embd // 4 (8)
+        self.sa_heads = MultiHeadAttention(num_heads=4, head_size=n_embd // 4)
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def forward(self, idx, targets=None):
@@ -118,7 +139,7 @@ class BigramLanguageModel(nn.Module):
         token_embeddings = self.token_embedding_table(idx)  # (B,T,C) -- C = n_embd
         position_embeddings = self.position_embedding_table(torch.arange(T, device=device)) # (T,C) broadcasted to (B,T,C)
         x = token_embeddings + position_embeddings  # (B,T,C)
-        x = self.sa_head(x) # apply one head of self-attention. (B,T,C)
+        x = self.sa_heads(x) # apply one head of self-attention. (B,T,C)
         logits = self.lm_head(x)  # (B,T,vocab_size)
 
         if targets is None:
