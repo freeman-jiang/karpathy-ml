@@ -79,8 +79,6 @@ class Head(nn.Module):
         # if not a parameter, it is a buffer and need to assign it to model this way:
         self.register_buffer('tril', torch.tril(torch.ones(block_size, block_size)))
 
-        # self.dropout = nn.Dropout(dropout)
-
     def forward(self, x):
         # input of size (batch, time-step, channels)
         # output of size (batch, time-step, head size)
@@ -92,7 +90,6 @@ class Head(nn.Module):
         wei = q @ k.transpose(-2,-1) * C **-0.5 # (B, T, hs) @ (B, hs, T) -> (B, T, T)
         wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf')) # (B, T, T)
         wei = F.softmax(wei, dim=-1) # (B, T, T)
-        # wei = self.dropout(wei)
 
         # perform the weighted aggregation of the values
         v = self.value(x) # (B,T,hs)
@@ -120,6 +117,19 @@ class MultiHeadAttention(nn.Module):
         # concatenate the output of each head over the channel dimension
         return torch.cat([h(x) for h in self.heads], dim=-1)
 
+class FeedFoward(nn.Module):
+    """ a simple linear layer followed by a non-linearity """
+
+    def __init__(self, n_embd):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(n_embd, n_embd),
+            nn.ReLU(),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
 # super simple bigram model
 class BigramLanguageModel(nn.Module):
 
@@ -131,6 +141,7 @@ class BigramLanguageModel(nn.Module):
         # Previously we had one head of self-attention of size n_embd (32)
         # Now we have 4 heads of self-attention of size n_embd // 4 (8)
         self.sa_heads = MultiHeadAttention(num_heads=4, head_size=n_embd // 4)
+        self.ffwd = FeedFoward(n_embd)
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def forward(self, idx, targets=None):
@@ -140,6 +151,7 @@ class BigramLanguageModel(nn.Module):
         position_embeddings = self.position_embedding_table(torch.arange(T, device=device)) # (T,C) broadcasted to (B,T,C)
         x = token_embeddings + position_embeddings  # (B,T,C)
         x = self.sa_heads(x) # apply one head of self-attention. (B,T,C)
+        x = self.ffwd(x) # (B,T,C)
         logits = self.lm_head(x)  # (B,T,vocab_size)
 
         if targets is None:
