@@ -5,17 +5,23 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 # hyperparameters
-batch_size = 32  # how many independent sequences will we process in parallel?
-block_size = 8  # what is the maximum context length for predictions?
+batch_size = 64        # how many independent sequences will we process in parallel? (32)
+block_size = 256       # what is the maximum context length for predictions? (8)
 max_iters = 5000
 eval_interval = 500
-learning_rate = 1e-3
+learning_rate = 3e-4   # (1e-3)
+eval_iters = 200
+n_embd = 384           # number of features in each token embedding (32)
+n_head = 6             # means that every head will be 384/6-dimensional or have 64 features
+n_layer = 6            # number of transformer blocks to have
+dropout = 0.2          # every fwd/bwd pass, 20% of neurons are randomly dropped
+
+
+
+
+# ------------
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f"Using device: {device}")
-eval_iters = 200
-n_embd = 32
-# ------------
-
 torch.manual_seed(1337)
 
 # wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
@@ -78,6 +84,7 @@ class Head(nn.Module):
         self.value = nn.Linear(n_embd, head_size, bias=False)
         # if not a parameter, it is a buffer and need to assign it to model this way:
         self.register_buffer('tril', torch.tril(torch.ones(block_size, block_size)))
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
         # input of size (batch, time-step, channels)
@@ -90,6 +97,7 @@ class Head(nn.Module):
         wei = q @ k.transpose(-2,-1) * C **-0.5 # (B, T, hs) @ (B, hs, T) -> (B, T, T)
         wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf')) # (B, T, T)
         wei = F.softmax(wei, dim=-1) # (B, T, T)
+        wei = self.dropout(wei) # after affinities are calculated, apply dropout
 
         # perform the weighted aggregation of the values
         v = self.value(x) # (B,T,hs)
@@ -117,11 +125,12 @@ class MultiHeadAttention(nn.Module):
         # Projection allows the model to learn how to optimally mix and combine the different attention patterns from each head. Each head might be focusing on different aspects of the input (like syntax, semantics, or nearby word relationships). The projection layer learns weights that determine how to blend these different "views" together into a unified representation.
         # QUESTION: I'm not sure how this is related to the residual connections.
         self.proj = nn.Linear(n_embd, n_embd)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
         # concatenate the output of each head over the channel dimension
         out =  torch.cat([h(x) for h in self.heads], dim=-1)
-        out = self.proj(out)
+        out = self.dropout(self.proj(out))
         return out
 
 class FeedFoward(nn.Module):
@@ -133,6 +142,7 @@ class FeedFoward(nn.Module):
             nn.Linear(n_embd, 4 * n_embd), # inner layer has 4x dimensionality in transformers paper
             nn.ReLU(),
             nn.Linear(4 * n_embd, n_embd), # projection layer back into the residual pathway
+            nn.Dropout(dropout),
         )
 
     def forward(self, x):
@@ -155,7 +165,7 @@ class Block(nn.Module):
 
 
     def forward(self, x):
-        # (residual connections)
+        # (2 residual connections, after masked self-attention and after feedforward)
         x = x + self.sa(self.ln1(x))    
         x = x + self.ffwd(self.ln2(x)) 
         return x
@@ -177,13 +187,8 @@ class BigramLanguageModel(nn.Module):
         # 1) This residual connections require the dims to match to add the original input to transformed output
         # 2) Keeping dimension constant means each block has the same "representational capacity" - no information bottlenecks until the final layer where we project to vocabulary probabilities.
         # 3) The multi-head attention splits n_embd evenly among heads, then concatenates back to n_embd. This clean split/merge only works with consistent dimensionality.
-        self.blocks = nn.Sequential(
-            Block(n_embd, n_head=4),
-            Block(n_embd, n_head=4),
-            Block(n_embd, n_head=4),
-            nn.LayerNorm(n_embd),
-        )
-        
+        self.blocks = nn.Sequential(*[Block(n_embd, n_head=n_head) for _ in range(n_layer)])
+        self.ln_f = nn.LayerNorm(n_embd) # final layer norm
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def forward(self, idx, targets=None):
@@ -193,6 +198,7 @@ class BigramLanguageModel(nn.Module):
         position_embeddings = self.position_embedding_table(torch.arange(T, device=device)) # (T,C) broadcasted to (B,T,C)
         x = token_embeddings + position_embeddings  # (B,T,C)
         x = self.blocks(x) # (B,T,C)
+        x = self.ln_f(x) # (B,T,C)
         logits = self.lm_head(x)  # (B,T,vocab_size)
 
         if targets is None:
