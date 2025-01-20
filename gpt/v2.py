@@ -147,11 +147,17 @@ class Block(nn.Module):
         head_size = n_embd // n_head
         self.sa = MultiHeadAttention(n_head, head_size)
         self.ffwd = FeedFoward(n_embd)
+        # In original paper: layer norm is applied after the transformation
+        # But now it's usually applied before the transformation: called the "pre-norm formulation"
+        # So it is normally across the 32 features.
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.ln2 = nn.LayerNorm(n_embd)
+
 
     def forward(self, x):
         # (residual connections)
-        x = x + self.sa(x)    
-        x = x + self.ffwd(x) 
+        x = x + self.sa(self.ln1(x))    
+        x = x + self.ffwd(self.ln2(x)) 
         return x
 
 # super simple bigram model
@@ -166,10 +172,16 @@ class BigramLanguageModel(nn.Module):
         # Previously we had one head of self-attention of size n_embd (32)
         # Then we had 4 heads of self-attention of size n_embd // 4 (8)
         # Now we have 4 blocks of self-attention with 4 heads of self-attention each
+
+        # NOTE: Throughout we have n_embd = 32 features constant. Why?
+        # 1) This residual connections require the dims to match to add the original input to transformed output
+        # 2) Keeping dimension constant means each block has the same "representational capacity" - no information bottlenecks until the final layer where we project to vocabulary probabilities.
+        # 3) The multi-head attention splits n_embd evenly among heads, then concatenates back to n_embd. This clean split/merge only works with consistent dimensionality.
         self.blocks = nn.Sequential(
             Block(n_embd, n_head=4),
             Block(n_embd, n_head=4),
             Block(n_embd, n_head=4),
+            nn.LayerNorm(n_embd),
         )
         
         self.lm_head = nn.Linear(n_embd, vocab_size)
