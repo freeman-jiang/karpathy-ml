@@ -1,0 +1,167 @@
+52m training time on a T4 GPU on Google Colab
+Decoder-only transformer trained on all Shakespeare
+Final Loss: `step 4500: train loss 1.1108, val loss 1.4805`
+
+MENENIUS:
+Wha, you'll not so? what is't love?
+
+BRUTUS:
+God man?
+
+COMINIUS:
+O, let the ceptain figurest city:  it is no wife
+Tushe amber-spiteen; forced the greaters
+Will be a misery.
+
+MENENIUS:
+He is, I am, no, sir?
+
+SICINIUS:
+Master by the reason
+to know, for a which will we
+Within you not well, yet have warrants show
+A garb and broken'st; and, you would thence he better
+The devil's sound will boldly.
+
+BRUTUS:
+Come on.
+
+MENENIUS:
+Pray you!
+Sir, for happy you, persone,--
+Let Very prayers with France amongstrous gentleman:
+Tranion of our gates and mighty begand,--
+With high best ears a sallow, ere you so time,
+Speak, utter'd; rice it must pack a briek again,
+I one was, as jointy at I kill the lean,
+A consuls with fall the upton of death.
+
+FRIAR LAURENCE:
+And let 'twere declivers; and looking we cmon
+me from his scuent of common. Devor'd host
+Thy love to sharp my life softly wenches did
+Weign no word the dull stand of my mother.
+
+PRINCE:
+What could have left in, which, is a twieful of draw.
+
+BUCKINGHAM:
+Well a prier father's pretty of a king;
+I hopes he small alive, to Brittancon!
+I had the nobles robes a bird Romeo, how he
+like youth made on the table, do
+hateful, in intercenting, who hard that did?
+
+KING RICHARD III:
+Where you ten you go well, who speak like to begganled
+We like him to my wife, or that honour have
+May it live their fearful adventure, there our trag spleen;
+For all my hatred his virtuous bones;
+For there love my inquiscing for death,
+As creature n't to make thy service parcention.
+And let wis say thou call'st it, but thy day but and
+Wherein thy heart was this man attern, not
+Than with a tradiumphs state, such fighting Richard art to worst
+As fields deaft and drown for thy instruments.
+
+FRIAR LAURENCE:
+You praise for men?
+
+FRIAR LAURENCE:
+Was ever you condemn'd to die?
+
+BARNARDINA:
+And Julius of Lancaster.
+
+BAGLO:
+Nor the table that seeks be sleep, my lain stab.
+
+RATCLIFF:
+O, sir, God morrow didst let thy royal scounds
+Which with a deadle as slanderin
+
+-------------------------------- SAMPLE 2 --------------------------------
+
+But with prison: I will stead with you.
+
+ISABELLA:
+Cars serve you thank for's ar a wife:
+And see thou wast to Harle, no:
+Ah, have what you speake upon your sister,
+Than your honour ancess, so sovereign along.
+
+LADY CLIFF:
+How shouldst thou lie and soonest in heapted,
+That you stead'st a mystery to fledge?
+
+BIAGOT:
+Thou news are years; brother spice, it in so
+That I seek that look'd you.
+
+STANLEY:
+Buspy din thou her helms! But why 'twas you?
+
+KING RICHARD II:
+They do not deter the court, to defy 
+
+
+-------------------------------- SAMPLE 3 --------------------------------
+
+Thou shalt hither more o' the wretch mode.
+They are perdove, ingeant lamb
+Thanks told on our which we caugle
+So lost its with him but by your service:
+What should my brother's sister wills to this.
+
+WARWICK:
+Then I have behold's pardon heir forfeits,
+But doth himself and slaingled tone act:
+As plit to God hence the hath wrong it me?
+Progest Warwick, I will look wot boon: now
+The bring of Lord Abrah Duke and came many
+Have the tate a few his peace: one where strieng tongue
+But letters than you sugging odds on me.
+
+KING RICHARD III:
+Since hath sized twenty Edward from shouts!
+Show'd unrulying but what thinks it your days?
+The right would I can rook, gooded blood timears
+And bear 'twe known one with this glarmanless:
+Cry clouds his hand by blood or brother;
+And whether eyes fled from fear from war,
+Do your sagger to give King Henry's light:
+She, here's straight I'ld it in attend out
+And what your justice wisd at Norfolk's sleep,
+Why we sweary Stay and all asleep them:
+He hath borney from the tigers of Am I sleep'st be advice
+Richarge Mdarcius deuble. I talk:
+No my mother; you are in dancement,
+She the only is till our black-back skully.
+Courage is the toy?
+
+PRINCE EDWARD:
+Welcome let as Hug in magnife: in Warwick'd her fathers;
+There four statacle Edward's day is all thinkings;
+And Would thy fiery accuptity than but
+And stifles and play for hearts us in the wall.
+Why, then Fresby God or Call Somerseuth,
+And that thou wert well of his vantage but laid;
+And the flighted for Edward wicked him were hold!
+
+BUCKINGHAM:
+Tush, boy, girl, to seld me for answer.
+
+KING EDWARD IV:
+How man, lords, villain, boy: speak thou arrest this:
+We long with all things are this truth:
+And goodness we say the charpet was in't truth.
+
+SOMERSET:
+Welcome, we'll sir: we'll't say
+Fell o'er hand we will be it but reason.
+
+Lieutenes:
+Besides, are mad; or she's Thursdays this bloody slaughtery,
+it so: the most I of the hurd: I have sail sun,
+We lean as hardly say, 'farewell I look bod my cant,
+And the
