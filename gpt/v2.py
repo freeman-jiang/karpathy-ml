@@ -170,8 +170,7 @@ class Block(nn.Module):
         x = x + self.ffwd(self.ln2(x)) 
         return x
 
-# super simple bigram model
-class BigramLanguageModel(nn.Module):
+class Transformer(nn.Module):
 
     def __init__(self):
         super().__init__()
@@ -230,7 +229,7 @@ class BigramLanguageModel(nn.Module):
         return idx
 
 
-model = BigramLanguageModel()
+model = Transformer()
 m = model.to(device)
 
 # create a PyTorch optimizer
